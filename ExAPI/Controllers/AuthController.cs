@@ -1,6 +1,7 @@
 ﻿using ExAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Threading.Tasks;
 
 namespace ExAPI.Controllers
@@ -24,16 +25,35 @@ namespace ExAPI.Controllers
         [Route("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel data)
         {
-            if(ModelState.IsValid)
-            {
-                var user = new IdentityUser();
-                user.Email = data.Email;
-                await _userManager.CreateAsync(user, data.Password);
 
-                return Ok();
+            var errorList = new ModelStateDictionary();
+
+            if (ModelState.IsValid)
+            {
+                if (await _userManager.FindByEmailAsync(data.Email) == null)
+                {
+                    var user = new IdentityUser();
+                    user.Email = data.Email;
+                    var result = await _userManager.CreateAsync(user, data.Password);
+
+                    if (!result.Succeeded)
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            errorList.AddModelError(error.Code, error.Description);
+                        }
+
+                        return new BadRequestObjectResult(new { Message = "Registration Failed", Errors = errorList });
+                    }
+                    else
+                    {
+                        return Ok(new { Message = "Registration Successful" });
+                    }
+              
+
+                }
+                return BadRequest(new { Message = "User Already Registered." });
             }
-            return BadRequest();
-            
 
         }
 
