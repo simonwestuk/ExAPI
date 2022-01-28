@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using ExAPI.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -20,15 +21,19 @@ namespace ExAPI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Register(string email, string password)
+        [Route("Register")]
+        public async Task<IActionResult> Register([FromBody] RegisterModel data)
         {
+            if(ModelState.IsValid)
+            {
+                var user = new IdentityUser();
+                user.Email = data.Email;
+                await _userManager.CreateAsync(user, data.Password);
+
+                return Ok();
+            }
+            return BadRequest();
             
-            var user = new IdentityUser();
-            user.Email = email;
-
-            await _userManager.CreateAsync(user, password);
-
-            return Ok();
 
         }
 

@@ -44,6 +44,7 @@ namespace ExAPI
             services.AddDbContext<ExAPIContext>(options =>
                     options.UseSqlite(Configuration.GetConnectionString("ExAPIContext")));
 
+            services.AddCors();
 
         }
 
@@ -64,6 +65,12 @@ namespace ExAPI
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseCors( c => c
+            .AllowAnyMethod()
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            );
 
             app.UseEndpoints(endpoints =>
             {
