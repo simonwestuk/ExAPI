@@ -28,7 +28,6 @@ namespace ExAPI.Controllers
 
             await _userManager.CreateAsync(user, password);
 
-
             return Ok();
 
         }
